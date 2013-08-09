@@ -1,0 +1,1 @@
+The files in this /iosched/android/src/main/libs folder is copied from the /iosched/android/libs folder.
