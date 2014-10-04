@@ -19,10 +19,17 @@ lpreview = hasProperty('lpreview')
 apply plugin: 'com.android.application'
 
 repositories {
+    def androidHome = System.getenv("ANDROID_HOME")
     mavenCentral()
     flatDir {
         dirs 'libs'
     }
+    maven {
+        url "$androidHome/extras/android/m2repository/"
+    }    
+    maven {
+        url "$androidHome/extras/google/m2repository/"
+    }    
 }
 
 android {
@@ -103,4 +110,63 @@ dependencies {
        they should be removed. */
     compile 'com.google.http-client:google-http-client-gson:+'
     compile 'com.google.apis:google-api-services-drive:+'
+}
+
+/*
+ * from
+ * http://stackoverflow.com/questions/16709305/add-dependencies-via-gradle-to-eclipse-in-android-project?rq=1
+ */
+
+task copyJarDependencies(type: Copy) {
+    description = 'Used for Eclipse. Copies all dependencies to the libs directory. If there are any AAR files it will extract the classes.jar and rename it the same as the AAR file but with a .jar on the end.'
+    libDir = new File(project.projectDir, '/src/main/libs')
+    println libDir
+    println 'Adding dependencies from compile configuration'
+    configurations.compile.filter {it.name.endsWith 'jar'}.each { File file -> moveJarIntoLibs(file, libDir)}
+    println 'Adding dependencies from releaseCompile configuration'
+    configurations.releaseCompile.filter {it.name.endsWith 'jar'}.each { File file -> moveJarIntoLibs(file, libDir)}
+    println 'Adding dependencies from debugCompile configuration'
+    configurations.debugCompile.filter {it.name.endsWith 'jar'}.each { File file -> moveJarIntoLibs(file, libDir)}
+    //println 'Adding dependencies from instrumentTestCompile configuration'
+    //configurations.instrumentTestCompile.filter {it.name.endsWith 'jar'}.each { File file -> moveJarIntoLibs(file, libDir)}
+    println 'Extracting dependencies from compile configuration'
+    configurations.compile.filter {it.name.endsWith 'aar'}.each { File file -> moveAndRenameAar(file, libDir) }
+    println 'Extracting dependencies from releaseCompile configuration'
+    configurations.releaseCompile.filter {it.name.endsWith 'aar'}.each { File file -> moveAndRenameAar(file, libDir) }
+    println 'Extracting dependencies from debugCompile configuration'
+    configurations.debugCompile.filter {it.name.endsWith 'aar'}.each { File file -> moveAndRenameAar(file, libDir) }
+    //println 'Extracting AAR dependencies from instrumentTestCompile configuration'
+    //configurations.instrumentTestCompile.filter {it.name.endsWith 'aar'}.each { File file -> moveAndRenameAar(file, libDir) }
+}
+
+void moveJarIntoLibs(File file, File libDir){
+    println 'Added jar ' + file
+        copy{
+            from file
+            into libDir.getAbsolutePath()
+        }
+}
+
+void moveAndRenameAar(File file, File libDir){
+    println 'Added aar ' + file
+    def baseFilename = file.name.lastIndexOf('.').with {it != -1 ? file.name[0..<it] : file.name}
+
+    // directory excluding the classes.jar
+    copy{
+        from zipTree(file)
+        exclude 'classes.jar'
+        into libDir.getAbsolutePath() + '/' + baseFilename
+    }
+
+    // Copies the classes.jar into the libs directory of the expoded AAR.
+    // In Eclipse you can then import this exploded ar as an Android project
+    // and then reference not only the classes but also the android resources :D 
+    copy{
+        from zipTree(file)
+        include 'classes.jar'
+        into libDir.getAbsolutePath() + '/' + baseFilename +'/libs'
+        rename { String fileName ->
+            fileName.replace('classes.jar', baseFilename + '.jar')
+        }
+    }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>iosched2013</name>
+	<name>iosched</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -30,4 +30,11 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>classic</name>
+			<type>2</type>
+			<location>C:/repos/iosched/android/src/classic/java</location>
+		</link>
+	</linkedResources>
 </projectDescription>

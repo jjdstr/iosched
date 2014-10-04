@@ -1,1 +1,11 @@
-The files in this /iosched/android/src/main/libs folder is copied from the /iosched/android/libs folder.
+The files in this /iosched/android/src/main/libs folder is copied from other locations using the modified /iosched/android/build.gradle file.
+
+The subfolders contains the aar-supplied library projects that should be imported into Eclipse too.
+
+In your Eclipse you should have these projects in order to build the iosched app:
+
+- iosched
+- iosched-andoid-map-utils
+- iosched-play-services
+- iosched-support-v13
+- iosched-support-v4
